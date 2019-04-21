@@ -158,7 +158,7 @@ const AddItem = (props) => {
             <div className="date">{datetime.getMonth()+1}/{datetime.getDate()}</div>
             <div className="content">
                 <div className="title">
-                    <input type="text" name="title" placeholder="new event" onChange={handleChange.title}></input>
+                    <input type="text" name="title" placeholder="new event" onChange={handleChange.title} autocomplete="off"></input>
                 </div>
                 <div className="info">
                     <span className="time"><input type="datetime-local" name="datetime" defaultValue={datetime.toISOString().slice(0, 16)} onChange={handleChange.datetime}></input></span>
