@@ -12,7 +12,6 @@
 
 * {
     box-sizing: border-box;
-    transition: all ease-out 50ms;
 }
 
 html {
@@ -39,7 +38,7 @@ body {
 /* App header */
 .App > .header {
     width: 100%;
-    border-bottom: .25rem solid var(--pink-border);
+    border-bottom: 2px solid var(--pink-border);
     padding: .25rem;
     display: flex;
     align-items: center;
@@ -99,7 +98,7 @@ body {
     border: 1px solid transparent;
     outline: transparent;
     border-radius: 2px;
-    margin: .2rem;
+    margin: .1rem 0;
     padding: .2rem .4rem;
     min-width: 3.3rem;
     cursor: pointer;
@@ -114,10 +113,19 @@ body {
     background-color: var(--pink-bg);
     color: var(--light-color);
 }
+.Upcoming .button.alone.special {
+    border-bottom: 2px solid var(--bg-mid);
+    background-color: var(--bg-top);
+    color: var(--light-color);
+}
 .Upcoming .button.muted {
     background-color: transparent;
     border-color: var(--pink-color);
     color: var(--pink-color);
+}
+.Upcoming .button.special {
+    background-color: var(--bg-top);
+    color: var(--bg-bottom);
 }
 .Upcoming .button:active {
     background-color: var(--pink-color);
@@ -127,6 +135,9 @@ body {
 }
 .Upcoming .button.alone:active {
     color: var(--light-color);
+}
+.Upcoming .button.special:active {
+    background-color: var(--bg-mid);
 }
 
 /* Header */
@@ -152,6 +163,7 @@ body {
     border-radius: 2px;
     position: relative;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.12);
+    /* height: 3.5rem; */
 }
 .Upcoming .item .content {
     flex: auto;
@@ -178,29 +190,56 @@ body {
 }
 
 /* Add/Edit Item */
+.Upcoming .edit-item .content {
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12) inset;
+}
 .Upcoming .edit-item input {
     border: 0;
-    border: 2px solid transparent;
-    background-clip: padding-box;
+    /* border: 2px solid transparent; */
+    /* border: 1px solid var(--pink-color); */
+    /* background-clip: padding-box; */
     outline: none;
     background-color: var(--pink-light);
     color: var(--dark-color);
-    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12) inset;
+    /* box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12) inset; */
     font-size: 1rem;
-    padding: calc(.15rem) .25rem;
+    border-radius: 2px;
+    padding: .05rem .25rem;
+    /* padding: calc(.05rem + 2px) calc(.2rem + 2px); */
     width: 100%;
 }
 .Upcoming .edit-item input:focus {
-    border-color: var(--pink-color);
+    /* outline: 2px solid var(--pink-color); */
+    /* outline: 2px solid var(--bg-top); */
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    /* border: 2px solid transparent; */
+    /* border-color: var(--bg-top); */
+    /* padding: .05rem .2rem; */
 }
 .Upcoming .item.edit-item .date {
     margin-right: calc(.5rem - 2px);
 }
 .Upcoming .item.edit-item .title input {
     width: 100%;
-    margin-bottom: calc(.25rem - 2px);
+    margin-bottom: .5rem;
+    /* margin-bottom: 0; */
     font-family: 'Work Sans';
 }
 .Upcoming .item.edit-item input::placeholder {
     color: var(--pink-bg);
+}
+.Upcoming .edit-item {
+    /* height: 3.75em; */
+    transition: all 200ms ease-out 0ms, opacity 200ms ease-out 200ms;
+}
+.Upcoming .edit-item.closed {
+    visibility: hidden;
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    pointer-events: none;
+    transition: none;
+    /* transition: all 200ms ease-out 200ms, opacity 200ms ease-out 0ms, visibility 0ms 400ms; */
 }
