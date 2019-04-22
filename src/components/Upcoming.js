@@ -1,13 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const date2timestr = (date) => {
     return date.toLocaleTimeString().replace(/:\d\d /g, ' ');
-}
-const fromNow = (days=0, hours=0) => {
-    let date = new Date();
-    date.setDate(date.getDate() + days);
-    date.setHours(date.getHours() + hours, 0, 0, 0);
-    return date;
 }
 const noTZ = (date) => {
     let adjusted = new Date(date);
@@ -21,19 +15,7 @@ const addTZ = (date) => {
 }
 
 let mock = {
-    viewer: 'Cyrus',
-    members: ['Cyrus', 'Zack', 'Andy', 'Tristan', 'Lianna', 'Phill', 'Jack', 'Erena', 'Jimmy', 'Kelsey', 'Kate', 'Jen'],
-    upcoming: [
-        {_id: 0, title: 'bowling at Pinz', date: fromNow(1, 10), owner: 'Cyrus', going: ['Cyrus', 'Tristan', 'Lianna', 'Jen']},
-        {_id: 1, title: 'comedy show', date: fromNow(3, 15), owner: 'Zack', going: ['Zack', 'Andy']},
-        {_id: 2, title: 'anime night', date: fromNow(3, 20), owner: 'Andy', going: ['Cyrus', 'Zack', 'Andy', 'Tristan', 'Lianna', 'Jimmy', 'Kelsey']},
-        {_id: 3, title: 'hike Mt Tom', date: fromNow(6, 14), owner: 'Cyrus', going: ['Cyrus', 'Tristan', 'Lianna']},
-        {_id: 4, title: 'murder mystery party', date: fromNow(10, 17), owner: 'Zack', going: ['Cyrus', 'Zack', 'Andy', 'Tristan', 'Lianna', 'Phill', 'Jack', 'Erena', 'Jimmy', 'Kelsey', 'Kate', 'Jen']},
-        {_id: 5, title: 'farmer\'s market', date: fromNow(11, 14), owner: 'Phill', going: ['Phill', 'Kate']},
-        {_id: 6, title: 'concert in Northampton', date: fromNow(13, 16), owner: 'Jack', going: ['Jack', 'Erena']},
-        {_id: 7, title: 'game night', date: fromNow(14, 20), owner: 'Zack', going: ['Cyrus', 'Zack', 'Andy', 'Erena']},
-    ],
-    up_id: 7
+    viewer: 'Cyrus'
 }
 
 const Item = (props) => {
@@ -119,7 +101,9 @@ const Item = (props) => {
 }
 
 const List = (props) => {
+    let now = new Date();
     let itemRows = props.upcoming
+        .filter(x => x.date >= now)
         .sort((a, b) => a.date - b.date)
         .map(item => <Item key={item._id} item={item} {...props}/>);
 
@@ -158,7 +142,7 @@ const AddItem = (props) => {
             <div className="date">{datetime.getMonth()+1}/{datetime.getDate()}</div>
             <div className="content">
                 <div className="title">
-                    <input type="text" name="title" placeholder="new event" onChange={handleChange.title} autocomplete="off"></input>
+                    <input type="text" name="title" placeholder="new event" onChange={handleChange.title} autoComplete="off"></input>
                 </div>
                 <div className="info">
                     <span className="time"><input type="datetime-local" name="datetime" defaultValue={datetime.toISOString().slice(0, 16)} onChange={handleChange.datetime}></input></span>
@@ -185,31 +169,57 @@ const Header = (props) => {
 }
 
 const Upcoming = (props) => {
-    const [upcoming, setUpcoming] = useState(mock.upcoming);
+    const [upcoming, setUpcoming] = useState([]);
     const [addOpen, setAddOpen] = useState(false);
+
+    useEffect(() => {
+        fetch('/api/events').then(res => res.json()).then(result => {
+            result.data.forEach(e => {
+                e.date = new Date(e.date);
+            });
+            setUpcoming(result.data);
+        });
+    }, []);
 
     const toggleAdd = () => {
         setAddOpen(!addOpen);
     }
 
     const addItem = (item) => {
-        item._id = item._id || ++mock.up_id;
-        let now = new Date();
-        setUpcoming(upcoming.concat([item]).filter(a => a.date >= now));
         setAddOpen(false);
+        fetch('/api/events', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(item)
+        }).then(res => res.json()).then(result => {
+            result.data.date = new Date(result.data.date);
+            setUpcoming(upcoming.concat([result.data]));
+        });
     }
 
     const deleteItem = (_id) => {
-        setUpcoming(upcoming.filter(a => a._id !== _id));
+        fetch('/api/events/' + _id, {
+            method: 'DELETE'
+        }).then(res => res.json()).then(result => {
+            setUpcoming(upcoming.filter(x => x._id !== result.data._id));
+        });
     }
 
     const editItem = (item) => {
-        let i = upcoming.findIndex(x => x._id === item._id);
-        if (i > -1) {
-            let update = upcoming.slice();
-            update[i] = item;
-            setUpcoming(update);
-        }
+        setAddOpen(false);
+        fetch('/api/events/' + item._id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(item)
+        }).then(res => res.json()).then(result => {
+            result.data.date = new Date(result.data.date);
+            let i = upcoming.findIndex(x => x._id === result.data._id);
+            if (i > -1) {
+                let update = upcoming.slice()
+                update[i] = result.data;
+                setUpcoming(update);
+            }
+        });
     }
 
     return (
