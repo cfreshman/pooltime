@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const db = require('./db');
 
 const app = express();
 const port = 5000;
@@ -20,6 +21,12 @@ app.use((req, res, next) => {
 app.use('/api/events', require('./events').routes);
 
 // start server
-app.listen(port, () => {
-    console.log(`App started on port ${port}`);
+db.connect('mongodb://localhost/pooltime', (err) => {
+    if (err) {
+        console.log(err);
+    } else {
+        app.listen(5000, () => {
+            console.log(`App started on port ${port}`);
+        });
+    }
 });

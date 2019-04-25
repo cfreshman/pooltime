@@ -25,17 +25,17 @@ const Item = (props) => {
 
     const handleChange = {
         title: (e) => setEditTitle(e.target.value),
-        date: (e) => setEditDate(new Date(e.target.value))
+        date: (e) => !isNaN(Date.parse(e.target.value)) && setEditDate(new Date(e.target.value))
     };
 
     const handleClick = {
         join: () => {
-            let item = props.item;
+            let item = Object.assign({}, props.item);
             item.going = props.item.going.concat([mock.viewer]);
             props.editItem(item);
-        }, 
+        },
         leave: () => {
-            let item = props.item;
+            let item = Object.assign({}, props.item);
             item.going = item.going.filter(x => x !== mock.viewer);
             props.editItem(item);
         },
@@ -45,7 +45,7 @@ const Item = (props) => {
             setEditDate(noTZ(props.item.date));
         },
         save: () => {
-            let item = props.item;
+            let item = Object.assign({}, props.item);
             item.title = editTitle;
             item.date = addTZ(editDate);
             props.editItem(item);
@@ -68,7 +68,7 @@ const Item = (props) => {
                         <span className="time"><input type="datetime-local" name="datetime" defaultValue={editDate.toISOString().slice(0, 16)} onChange={handleChange.date}></input></span>
                     </div>
                 </div>
-                
+
                 <div className="controls">
                     <button className="button" onClick={handleClick.delete}>delete</button>
                     <button className="button muted" onClick={handleClick.edit}>cancel</button>
@@ -86,10 +86,10 @@ const Item = (props) => {
                         <span className="time">{date2timestr(props.item.date)}</span> • <span className="owner">{props.item.owner}</span> • <span className="going">{props.item.going.length} going</span>
                     </div>
                 </div>
-                
+
                 <div className="controls">
                     { (props.item.owner === mock.viewer)
-                        ? <button className="button muted" onClick={handleClick.edit}>edit</button>
+                        ? <button className="button special" onClick={handleClick.edit}>edit</button>
                         : (props.item.going.includes(mock.viewer))
                             ? <button className="button muted" onClick={handleClick.leave}>leave</button>
                             : <button className="button" onClick={handleClick.join}>join</button>
@@ -123,7 +123,7 @@ const AddItem = (props) => {
 
     const handleChange = {
         title: (e) => setTitle(e.target.value),
-        datetime: (e) => setDatetime(new Date(e.target.value))
+        datetime: (e) => (e) => !isNaN(Date.parse(e.target.value)) && setDatetime(new Date(e.target.value))
     };
 
     const handleSubmit = () => {
@@ -135,6 +135,7 @@ const AddItem = (props) => {
             owner: mock.viewer,
             going: [mock.viewer]
         });
+        setTitle('');
     };
 
     return (
@@ -142,13 +143,13 @@ const AddItem = (props) => {
             <div className="date">{datetime.getMonth()+1}/{datetime.getDate()}</div>
             <div className="content">
                 <div className="title">
-                    <input type="text" name="title" placeholder="new event" onChange={handleChange.title} autoComplete="off"></input>
+                    <input type="text" name="title" placeholder="new event" value={title} onChange={handleChange.title} autoComplete="off"></input>
                 </div>
                 <div className="info">
                     <span className="time"><input type="datetime-local" name="datetime" defaultValue={datetime.toISOString().slice(0, 16)} onChange={handleChange.datetime}></input></span>
                 </div>
             </div>
-            
+
             <div className="controls">
                 <button className="button muted" onClick={props.cancelAdd}>cancel</button>
                 <button className="button special" onClick={handleSubmit}>create</button>
